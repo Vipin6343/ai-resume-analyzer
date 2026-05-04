@@ -1,0 +1,16 @@
+.venv/
+.pycache/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.env
+*.env
+backend/.env
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+data/resumes/*
+data/faiss_index/*
+!data/resumes/.gitkeep
+!data/faiss_index/.gitkeep

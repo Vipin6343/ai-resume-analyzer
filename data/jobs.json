@@ -1,0 +1,83 @@
+[
+  {
+    "id": "job-ml-platform-engineer",
+    "title": "ML Platform Engineer",
+    "company": "Northwind Analytics",
+    "location": "Remote",
+    "employment_type": "Full-time",
+    "experience_level": "Mid-Senior",
+    "skills": ["Python", "FastAPI", "Docker", "Kubernetes", "AWS", "CI/CD", "MLOps", "MongoDB"],
+    "description": "Build internal ML platforms, productionize APIs, manage model deployment pipelines, and improve developer workflows for data and AI teams."
+  },
+  {
+    "id": "job-ai-fullstack-engineer",
+    "title": "AI Full-Stack Engineer",
+    "company": "Helio Labs",
+    "location": "Bengaluru",
+    "employment_type": "Full-time",
+    "experience_level": "Mid-Level",
+    "skills": ["React", "Tailwind CSS", "FastAPI", "Python", "MongoDB", "LLMs", "Prompt Engineering", "REST APIs"],
+    "description": "Ship AI products end to end, integrating LLM workflows into a React frontend with scalable Python backends and strong UX execution."
+  },
+  {
+    "id": "job-data-scientist-nlp",
+    "title": "NLP Data Scientist",
+    "company": "BrightForge AI",
+    "location": "Hybrid",
+    "employment_type": "Full-time",
+    "experience_level": "Senior",
+    "skills": ["Python", "NLP", "Transformers", "PyTorch", "Pandas", "A/B Testing", "Statistics", "SQL"],
+    "description": "Own NLP experimentation, evaluate retrieval and ranking quality, and translate product questions into measurable models and recommendations."
+  },
+  {
+    "id": "job-backend-engineer-python",
+    "title": "Backend Engineer (Python)",
+    "company": "Atlas Commerce",
+    "location": "Remote",
+    "employment_type": "Full-time",
+    "experience_level": "Mid-Level",
+    "skills": ["Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "System Design", "Testing", "Microservices"],
+    "description": "Design backend services, own API contracts, improve observability, and deliver reliable distributed systems for high-volume commerce traffic."
+  },
+  {
+    "id": "job-generative-ai-engineer",
+    "title": "Generative AI Engineer",
+    "company": "SignalFrame",
+    "location": "Remote",
+    "employment_type": "Contract",
+    "experience_level": "Senior",
+    "skills": ["Python", "LLMs", "RAG", "FAISS", "LangChain", "Prompt Engineering", "Vector Databases", "Evaluation"],
+    "description": "Build retrieval-augmented AI applications, measure prompt quality, and create robust pipelines around embeddings, vector search, and grounding."
+  },
+  {
+    "id": "job-software-engineer-frontend",
+    "title": "Frontend Engineer",
+    "company": "PulseBoard",
+    "location": "On-site",
+    "employment_type": "Full-time",
+    "experience_level": "Mid-Level",
+    "skills": ["React", "JavaScript", "TypeScript", "Tailwind CSS", "Accessibility", "Testing Library", "Vite", "REST APIs"],
+    "description": "Lead frontend implementation, maintain a high-quality design system, and build resilient dashboards with clean user flows and measurable usability."
+  },
+  {
+    "id": "job-cloud-devops-engineer",
+    "title": "Cloud DevOps Engineer",
+    "company": "Orbit Stack",
+    "location": "Remote",
+    "employment_type": "Full-time",
+    "experience_level": "Mid-Senior",
+    "skills": ["AWS", "Terraform", "Docker", "Kubernetes", "CI/CD", "Monitoring", "Linux", "Security"],
+    "description": "Automate cloud infrastructure, harden deployment pipelines, and improve reliability, release speed, and incident response practices."
+  },
+  {
+    "id": "job-product-analytics-engineer",
+    "title": "Product Analytics Engineer",
+    "company": "Nova Metrics",
+    "location": "Hybrid",
+    "employment_type": "Full-time",
+    "experience_level": "Mid-Level",
+    "skills": ["SQL", "Python", "dbt", "Looker", "Experimentation", "Data Modeling", "ETL", "Stakeholder Communication"],
+    "description": "Build analytical datasets, improve experiment reporting, and support product and growth teams with actionable metrics and clean pipelines."
+  }
+]
+
