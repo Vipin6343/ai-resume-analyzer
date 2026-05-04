@@ -90,6 +90,9 @@ The backend will be available at `http://localhost:8000`.
 - Render services created on or after `2026-02-11` default to Python `3.14.3`.
 - This repository pins Python `3.11` in `.python-version` because the current backend dependency set, especially `pydantic==2.9.2` and `pydantic-core==2.23.4`, is packaged for Python `3.8` through `3.13`, not Python `3.14`.
 - The backend also requires `faiss-cpu`, which is included in [backend/requirements.txt](backend/requirements.txt).
+- For a Render web service, use build command `pip install -r requirements.txt`.
+- Use start command `python backend/render_start.py`.
+- Do not use `--reload` on Render.
 
 ## 3. AI Layer
 
