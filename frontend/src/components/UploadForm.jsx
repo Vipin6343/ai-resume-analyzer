@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FileText, UploadCloud, X, Sparkles, ShieldCheck, LoaderCircle, Briefcase } from 'lucide-react';
 import { HistoryPanel } from './HistoryPanel';
+import { JobUrlScraper } from './JobUrlScraper';
 
 const MAX_JOB_CHARS = 12000;
 
@@ -78,8 +79,19 @@ export function UploadForm({ file, busy, error, onSelectFile, onRemoveFile, onSu
             />
           </div>
 
+          {/* ── Auto-fill from Job URL Scraper ── */}
+          <div style={{ marginTop: 18 }}>
+            <JobUrlScraper
+              disabled={busy}
+              onScraped={data => {
+                if (data.description) setJobDescription(data.description);
+                if (data.title && !targetJob) setTargetJob(data.title);
+              }}
+            />
+          </div>
+
           {/* ── Job description ── */}
-          <label className="field-label" style={{ marginTop: 18 }}>
+          <label className="field-label" style={{ marginTop: 8 }}>
             Job description <span>optional — unlocks match score</span>
           </label>
           <textarea

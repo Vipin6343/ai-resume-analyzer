@@ -194,3 +194,49 @@ class InterviewQuestion(Schema):
 class InterviewQuestionsResponse(Schema):
     questions: list[InterviewQuestion]
     tip: str  # One general interview tip
+
+
+class LinkedInSummaryResponse(Schema):
+    headline: str
+    about_summary: str
+    key_hashtags: list[str]
+
+
+class ColdEmailResponse(Schema):
+    subject_lines: list[str]
+    body: str
+
+
+class RewriteOption(Schema):
+    style: str
+    text: str
+    explanation: str
+
+
+class CustomRewriteResponse(Schema):
+    original: str
+    options: list[RewriteOption]
+
+
+class ScrapeJobRequest(Schema):
+    url: str
+
+
+class ScrapeJobResponse(Schema):
+    title: str | None = None
+    company: str | None = None
+    description: str
+
+
+class CompareResumesResponse(Schema):
+    name_a: str
+    name_b: str
+    quality_score_a: int
+    quality_score_b: int
+    ats_score_a: int
+    ats_score_b: int
+    winner: Literal["A", "B", "TIE"]
+    recommendation: str
+    strengths_a: list[str]
+    strengths_b: list[str]
+    verdict_summary: str

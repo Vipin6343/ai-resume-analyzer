@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Activity, BrainCircuit, BriefcaseBusiness, Upload, ArrowRight, FileText, ShieldCheck, CircleHelp } from 'lucide-react';
+import { Activity, BrainCircuit, BriefcaseBusiness, Upload, ArrowRight, FileText, ShieldCheck, CircleHelp, Scale } from 'lucide-react';
 import { useAnalyze } from './hooks/useAnalyze';
 import { useHistory } from './hooks/useHistory';
 import { UploadForm } from './components/UploadForm';
@@ -9,6 +9,10 @@ import { ResumeReview } from './components/ResumeReview';
 import { RequirementsView } from './components/RequirementsView';
 import { ScoreCard } from './components/ScoreCard';
 import { ATSReport } from './components/ATSReport';
+import { ScoreHistoryChart } from './components/ScoreHistoryChart';
+import { ResumeComparator } from './components/ResumeComparator';
+import { JobUrlScraper } from './components/JobUrlScraper';
+import { InlineRewriter } from './components/InlineRewriter';
 import './style.css';
 import './workspace.css';
 
@@ -17,6 +21,7 @@ const pages = [
   { id: 'dashboard', label: 'Dashboard', icon: Activity },
   { id: 'jobs', label: 'Job Matches', icon: BriefcaseBusiness },
   { id: 'improvement', label: 'Resume Improvement', icon: BrainCircuit },
+  { id: 'compare', label: 'A/B Compare', icon: Scale },
 ];
 function currentPage() {
   const id = window.location.hash.replace(/^#\/?/, '');
@@ -108,6 +113,7 @@ function App() {
               {history.length ? history.map(entry => <article key={entry.id}><button className="reference-history-open" onClick={() => restore(entry.result)}><FileText size={16}/><span>{entry.filename}<small>{new Date(entry.date).toLocaleString()}</small></span><ArrowRight size={14}/></button><button className="reference-delete" onClick={() => deleteEntry(entry.id)} aria-label={'Delete report for ' + entry.filename}>Delete report</button></article>) : <p className="reference-muted">Your completed AI analyses will appear here.</p>}
             </aside>
           </div>
+          <ScoreHistoryChart history={history} onRestore={restore} />
         </>}
         {page === 'jobs' && <div className="reference-columns jobs-columns">
           <section className="reference-panel"><h2>Compare with a job</h2><p className="reference-muted">Paste the job posting to compare explicit requirements with your resume evidence.</p>
@@ -115,7 +121,18 @@ function App() {
               <p className="reference-file">{file ? file.name : 'Upload your resume to start a comparison.'}</p>
               {!file && <a className="reference-text-link" href="#/upload">Go to upload <ArrowRight size={14}/></a>}
               <label className="field-label" htmlFor="match-title">Target job title <span>optional</span></label><input id="match-title" className="reference-input" value={draftTitle} maxLength={200} disabled={busy} onChange={e => setDraftTitle(e.target.value)} placeholder="e.g. AI Backend Developer"/>
-              <label className="field-label" htmlFor="match-description">Job description <span>required for matching</span></label><textarea id="match-description" value={draftJob} onChange={e => setDraftJob(e.target.value)} maxLength={12000} required disabled={busy} placeholder="Required skills, responsibilities and qualifications…"/>
+
+              <div style={{ marginTop: 18 }}>
+                <JobUrlScraper
+                  disabled={busy}
+                  onScraped={data => {
+                    if (data.description) setDraftJob(data.description);
+                    if (data.title && !draftTitle) setDraftTitle(data.title);
+                  }}
+                />
+              </div>
+
+              <label className="field-label" htmlFor="match-description" style={{ marginTop: 12 }}>Job description <span>required for matching</span></label><textarea id="match-description" value={draftJob} onChange={e => setDraftJob(e.target.value)} maxLength={12000} required disabled={busy} placeholder="Required skills, responsibilities and qualifications…"/>
               <p className="review-note">{draftJob.length.toLocaleString()} / 12,000 characters</p>
               {error && <p role="alert" className="error">{error}</p>}
               <button className="primary-button" disabled={busy || !file || !draftJob.trim()}>{busy ? 'Comparing…' : 'Analyze job match'}</button>
@@ -127,7 +144,13 @@ function App() {
             <section className="reference-panel"><h2>How matching works</h2><p>Required requirements carry 2 points; preferred requirements carry 1. Only evidenced matches count. Duplicate requirements are consolidated.</p><p className="review-note">A job title alone does not supply usable requirements. The AI interprets requirements and evidence; Python calculates the weighted score. This is an application-defined match score.</p></section>
           </div>
         </div>}
-        {page === 'improvement' && (report ? <div className="reference-improvements"><section className="reference-panel"><p className="reference-eyebrow">YOUR NEXT DRAFT</p><h2>Make every section count.</h2><p className="reference-muted">Prioritized feedback and rewrite suggestions from your selected analysis. Check every draft against your real experience.</p></section><ResumeReview review={report.resume_review}/>{report.improvement_suggestions.length > 0 && <section className="result-section"><h3>Additional suggestions</h3><ol>{report.improvement_suggestions.map((suggestion, i) => <li key={i}>{suggestion}</li>)}</ol></section>}</div> : <EmptyReport title={busy ? 'Your review is in progress' : 'Your next draft starts with a review'}>Analyze a resume or open a saved report to see section feedback, bullet rewrites and an improved summary.</EmptyReport>)}
+        {page === 'improvement' && (report ? <div className="reference-improvements">
+          <section className="reference-panel"><p className="reference-eyebrow">YOUR NEXT DRAFT</p><h2>Make every section count.</h2><p className="reference-muted">Prioritized feedback and rewrite suggestions from your selected analysis. Check every draft against your real experience.</p></section>
+          <ResumeReview review={report.resume_review}/>
+          <InlineRewriter bulletRewrites={report.resume_review?.bullet_rewrites || []} targetRole={report.target_job} />
+          {report.improvement_suggestions.length > 0 && <section className="result-section"><h3>Additional suggestions</h3><ol>{report.improvement_suggestions.map((suggestion, i) => <li key={i}>{suggestion}</li>)}</ol></section>}
+        </div> : <EmptyReport title={busy ? 'Your review is in progress' : 'Your next draft starts with a review'}>Analyze a resume or open a saved report to see section feedback, bullet rewrites and an improved summary.</EmptyReport>)}
+        {page === 'compare' && <ResumeComparator />}
       </main>
       <footer className="reference-footer"><span>ResumeLens / Your career workspace</span><span>Application estimates · No hiring predictions</span></footer>
     </div>
