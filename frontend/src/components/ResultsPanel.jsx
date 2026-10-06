@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
   ScanText, Target, Sparkles, Check, X, CircleHelp,
-  LoaderCircle, Mail, HelpCircle, Download, FileSpreadsheet
+  LoaderCircle, Mail, HelpCircle, Download, FileSpreadsheet,
+  Share2, Send, Wand2
 } from 'lucide-react';
 import { ScoreCard } from './ScoreCard';
 import { ResumeReview } from './ResumeReview';
@@ -12,11 +13,16 @@ import { SkillGapChart } from './SkillGapChart';
 import { SkillQuestions } from './SkillQuestions';
 import { CoverLetterModal } from './CoverLetterModal';
 import { InterviewQuestionsModal } from './InterviewQuestionsModal';
+import { LinkedInModal } from './LinkedInModal';
+import { ColdEmailModal } from './ColdEmailModal';
+import { InlineRewriter } from './InlineRewriter';
 import { printReport } from '../utils/exportReport';
 
 export function ResultsPanel({ result, atsResult, busy, file, jobDescription, targetJob }) {
   const [coverLetterOpen, setCoverLetterOpen] = useState(false);
   const [questionsOpen, setQuestionsOpen] = useState(false);
+  const [linkedinOpen, setLinkedinOpen] = useState(false);
+  const [coldEmailOpen, setColdEmailOpen] = useState(false);
 
   const hasMatchScore = result?.match_score?.value != null;
   const hasRequirements =
@@ -82,6 +88,18 @@ export function ResultsPanel({ result, atsResult, busy, file, jobDescription, ta
               onClick={() => setQuestionsOpen(true)}
             >
               <HelpCircle size={15} /> Predict Interview Qs
+            </button>
+            <button
+              className="tool-action-btn linkedin-tool"
+              onClick={() => setLinkedinOpen(true)}
+            >
+              <Share2 size={15} /> LinkedIn Profile
+            </button>
+            <button
+              className="tool-action-btn email-tool"
+              onClick={() => setColdEmailOpen(true)}
+            >
+              <Send size={15} /> Cold Email Recruiter
             </button>
           </div>
         </div>
@@ -150,6 +168,13 @@ export function ResultsPanel({ result, atsResult, busy, file, jobDescription, ta
 
           {/* ── Requirements (only when job description was sent) ── */}
           <ResumeReview review={result.resume_review} />
+
+          {/* ── Inline Resume Rewriter & Sandbox Studio ── */}
+          <InlineRewriter
+            bulletRewrites={result.resume_review?.bullet_rewrites || []}
+            targetRole={result.target_job}
+          />
+
           {hasRequirements && <RequirementsView result={result} />}
 
           {/* ── Suggestions ── */}
@@ -183,6 +208,21 @@ export function ResultsPanel({ result, atsResult, busy, file, jobDescription, ta
         targetJob={targetJob}
         isOpen={questionsOpen}
         onClose={() => setQuestionsOpen(false)}
+      />
+
+      <LinkedInModal
+        file={file}
+        targetJob={targetJob}
+        isOpen={linkedinOpen}
+        onClose={() => setLinkedinOpen(false)}
+      />
+
+      <ColdEmailModal
+        file={file}
+        jobDescription={jobDescription}
+        targetJob={targetJob}
+        isOpen={coldEmailOpen}
+        onClose={() => setColdEmailOpen(false)}
       />
     </section>
   );

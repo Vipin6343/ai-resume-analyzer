@@ -12,7 +12,15 @@ from pydantic import BaseModel, ValidationError
 
 from .config import Settings
 from .errors import AppError
-from .schemas import InterviewQuestion, InterviewQuestionsResponse, ModelAnalysis
+from .schemas import (
+    ColdEmailResponse,
+    CustomRewriteResponse,
+    InterviewQuestion,
+    InterviewQuestionsResponse,
+    LinkedInSummaryResponse,
+    ModelAnalysis,
+    RewriteOption,
+)
 
 
 AnalysisProvider = Callable[[str, str, Settings], ModelAnalysis]
@@ -109,9 +117,50 @@ Return valid JSON matching this exact schema:
 }
 """
 
+LINKEDIN_SYSTEM_PROMPT = """You are an expert LinkedIn profile strategist and personal branding coach.
+Based on the provided resume and optional target job title, craft a high-impact LinkedIn profile package.
+Do not invent unverified employment, metrics, or credentials not supported by the resume.
+Return valid JSON matching this schema:
+{
+  "headline": "...",
+  "about_summary": "...",
+  "key_hashtags": ["#Tag1", "#Tag2", "#Tag3"]
+}
+Headline: 1-2 punchy lines, under 120 chars, showcasing title/identity, core technologies, and value proposition.
+About summary: 3-4 concise, engaging first-person paragraphs highlighting professional passion, top technical skills, key project achievements, and future impact.
+Key hashtags: 3-5 relevant skill and industry hashtags.
+"""
+
+COLD_EMAIL_SYSTEM_PROMPT = """You are an elite career coach specializing in recruiter outreach.
+Based on the provided resume and optional target job/job description, write a high-conversion cold outreach email.
+Return valid JSON matching this schema:
+{
+  "subject_lines": ["Subject 1", "Subject 2", "Subject 3"],
+  "body": "..."
+}
+Subject lines: Exactly 3 high-open-rate subject lines (e.g., Value-driven, Role curiosity, Mutual skill match).
+Body: Concise (140-190 words). Engaging greeting, strong intro, 2 bullet points drawn directly from real resume experience demonstrating relevant competencies, and a confident, polite call-to-action for a brief chat. Use placeholders like [Hiring Manager Name] or [Company Name] where appropriate.
+"""
+
+BULLET_REWRITE_SYSTEM_PROMPT = """You are an elite resume editor and executive coach.
+Given a single resume bullet point (and optional target role), generate exactly 3 distinctly styled, superior rewrites:
+1. "Action & Impact": Starts with a high-impact action verb, clear structure (Task + Method + Outcome).
+2. "Quantified & Metrics-Focused": Highlights scale, efficiency gains, and measurable results based strictly on the user's premise.
+3. "Executive & Leadership": Emphasizes ownership, problem-solving, collaboration, and strategic business value.
+For each option, explain briefly why it is superior to the original.
+Return valid JSON matching this schema:
+{
+  "options": [
+    {"style": "Action & Impact", "text": "...", "explanation": "..."},
+    {"style": "Quantified & Metrics-Focused", "text": "...", "explanation": "..."},
+    {"style": "Executive & Leadership", "text": "...", "explanation": "..."}
+  ]
+}
+"""
+
 
 # ---------------------------------------------------------------------------
-# Internal Pydantic models for AI-returned interview questions JSON
+# Internal Pydantic models for AI responses
 # ---------------------------------------------------------------------------
 
 class _InterviewQuestionRaw(BaseModel):
@@ -123,6 +172,27 @@ class _InterviewQuestionRaw(BaseModel):
 class _InterviewQuestionsRaw(BaseModel):
     questions: list[_InterviewQuestionRaw]
     tip: str
+
+
+class _LinkedInRaw(BaseModel):
+    headline: str
+    about_summary: str
+    key_hashtags: list[str]
+
+
+class _ColdEmailRaw(BaseModel):
+    subject_lines: list[str]
+    body: str
+
+
+class _RewriteOptionRaw(BaseModel):
+    style: str
+    text: str
+    explanation: str
+
+
+class _CustomRewriteRaw(BaseModel):
+    options: list[_RewriteOptionRaw]
 
 
 # ---------------------------------------------------------------------------
@@ -160,6 +230,54 @@ def _interview_gemini_response_format() -> dict:
     return {"type": "json_schema", "json_schema": {
         "name": "interview_questions", "strict": True,
         "schema": simplify(_InterviewQuestionsRaw.model_json_schema()),
+    }}
+
+
+def _linkedin_gemini_response_format() -> dict:
+    omitted = {"minLength", "maxLength", "minItems", "maxItems", "title", "description", "default"}
+
+    def simplify(value):
+        if isinstance(value, dict):
+            return {key: simplify(item) for key, item in value.items() if key not in omitted}
+        if isinstance(value, list):
+            return [simplify(item) for item in value]
+        return value
+
+    return {"type": "json_schema", "json_schema": {
+        "name": "linkedin_summary", "strict": True,
+        "schema": simplify(_LinkedInRaw.model_json_schema()),
+    }}
+
+
+def _cold_email_gemini_response_format() -> dict:
+    omitted = {"minLength", "maxLength", "minItems", "maxItems", "title", "description", "default"}
+
+    def simplify(value):
+        if isinstance(value, dict):
+            return {key: simplify(item) for key, item in value.items() if key not in omitted}
+        if isinstance(value, list):
+            return [simplify(item) for item in value]
+        return value
+
+    return {"type": "json_schema", "json_schema": {
+        "name": "cold_email", "strict": True,
+        "schema": simplify(_ColdEmailRaw.model_json_schema()),
+    }}
+
+
+def _rewrite_gemini_response_format() -> dict:
+    omitted = {"minLength", "maxLength", "minItems", "maxItems", "title", "description", "default"}
+
+    def simplify(value):
+        if isinstance(value, dict):
+            return {key: simplify(item) for key, item in value.items() if key not in omitted}
+        if isinstance(value, list):
+            return [simplify(item) for item in value]
+        return value
+
+    return {"type": "json_schema", "json_schema": {
+        "name": "bullet_rewrites", "strict": True,
+        "schema": simplify(_CustomRewriteRaw.model_json_schema()),
     }}
 
 
@@ -374,3 +492,217 @@ def generate_interview_questions(
         )
     except Exception as exc:
         _handle_provider_errors(exc)
+
+
+# ---------------------------------------------------------------------------
+# LinkedIn Summary Generator
+# ---------------------------------------------------------------------------
+
+def generate_linkedin_summary(
+    resume_text: str,
+    target_job: str | None,
+    settings: Settings,
+) -> LinkedInSummaryResponse:
+    """Call the configured AI provider and return a tailored LinkedIn headline and about summary."""
+    gemini = settings.provider == "gemini"
+    key = (settings.gemini_api_key if gemini else settings.api_key).get_secret_value()
+    key_name = "GEMINI_API_KEY" if gemini else "OPENAI_API_KEY"
+    if not key or key == "replace-with-your-api-key":
+        raise AppError(503, "missing_configuration", f"{key_name} is not configured.")
+    user_payload = {
+        "resume_text": resume_text,
+        "target_job": target_job or "",
+    }
+    try:
+        with OpenAI(
+            api_key=key,
+            base_url=("https://generativelanguage.googleapis.com/v1beta/openai/"
+                      if gemini else "https://api.openai.com/v1/"),
+            timeout=settings.gemini_timeout if gemini else settings.timeout,
+            max_retries=settings.gemini_max_retries if gemini else settings.max_retries,
+        ) as client:
+            if gemini:
+                result = client.chat.completions.create(
+                    model=settings.gemini_model,
+                    messages=[
+                        {"role": "system", "content": LINKEDIN_SYSTEM_PROMPT},
+                        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
+                    ],
+                    response_format=_linkedin_gemini_response_format(),
+                    max_tokens=2500,
+                )
+            else:
+                result = client.chat.completions.parse(
+                    model=settings.model,
+                    messages=[
+                        {"role": "system", "content": LINKEDIN_SYSTEM_PROMPT},
+                        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
+                    ],
+                    response_format=_LinkedInRaw,
+                    max_completion_tokens=2500,
+                    store=False,
+                )
+        if not result.choices:
+            raise ValueError("No choices")
+        choice = result.choices[0]
+        if choice.finish_reason not in ("stop", "end_turn"):
+            raise LengthFinishReasonError(completion=result, response=None)
+        if gemini:
+            if not choice.message.content:
+                raise ValueError("Empty linkedin summary")
+            raw = _LinkedInRaw.model_validate_json(choice.message.content)
+        else:
+            if choice.message.parsed is None:
+                raise ValueError("Empty linkedin summary")
+            raw = _LinkedInRaw.model_validate(choice.message.parsed.model_dump(warnings=False))
+        return LinkedInSummaryResponse(
+            headline=raw.headline,
+            about_summary=raw.about_summary,
+            key_hashtags=raw.key_hashtags,
+        )
+    except Exception as exc:
+        _handle_provider_errors(exc)
+
+
+# ---------------------------------------------------------------------------
+# Cold Email Generator
+# ---------------------------------------------------------------------------
+
+def generate_cold_email(
+    resume_text: str,
+    job_description: str | None,
+    target_job: str | None,
+    settings: Settings,
+) -> ColdEmailResponse:
+    """Call the configured AI provider to draft a high-impact cold outreach email to recruiters."""
+    gemini = settings.provider == "gemini"
+    key = (settings.gemini_api_key if gemini else settings.api_key).get_secret_value()
+    key_name = "GEMINI_API_KEY" if gemini else "OPENAI_API_KEY"
+    if not key or key == "replace-with-your-api-key":
+        raise AppError(503, "missing_configuration", f"{key_name} is not configured.")
+    user_payload = {
+        "resume_text": resume_text,
+        "job_description": job_description or "",
+        "target_job": target_job or "",
+    }
+    try:
+        with OpenAI(
+            api_key=key,
+            base_url=("https://generativelanguage.googleapis.com/v1beta/openai/"
+                      if gemini else "https://api.openai.com/v1/"),
+            timeout=settings.gemini_timeout if gemini else settings.timeout,
+            max_retries=settings.gemini_max_retries if gemini else settings.max_retries,
+        ) as client:
+            if gemini:
+                result = client.chat.completions.create(
+                    model=settings.gemini_model,
+                    messages=[
+                        {"role": "system", "content": COLD_EMAIL_SYSTEM_PROMPT},
+                        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
+                    ],
+                    response_format=_cold_email_gemini_response_format(),
+                    max_tokens=2000,
+                )
+            else:
+                result = client.chat.completions.parse(
+                    model=settings.model,
+                    messages=[
+                        {"role": "system", "content": COLD_EMAIL_SYSTEM_PROMPT},
+                        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
+                    ],
+                    response_format=_ColdEmailRaw,
+                    max_completion_tokens=2000,
+                    store=False,
+                )
+        if not result.choices:
+            raise ValueError("No choices")
+        choice = result.choices[0]
+        if choice.finish_reason not in ("stop", "end_turn"):
+            raise LengthFinishReasonError(completion=result, response=None)
+        if gemini:
+            if not choice.message.content:
+                raise ValueError("Empty cold email")
+            raw = _ColdEmailRaw.model_validate_json(choice.message.content)
+        else:
+            if choice.message.parsed is None:
+                raise ValueError("Empty cold email")
+            raw = _ColdEmailRaw.model_validate(choice.message.parsed.model_dump(warnings=False))
+        return ColdEmailResponse(
+            subject_lines=raw.subject_lines,
+            body=raw.body,
+        )
+    except Exception as exc:
+        _handle_provider_errors(exc)
+
+
+# ---------------------------------------------------------------------------
+# Custom Bullet Point Rewriter
+# ---------------------------------------------------------------------------
+
+def generate_custom_bullet_rewrites(
+    bullet: str,
+    target_role: str | None,
+    settings: Settings,
+) -> CustomRewriteResponse:
+    """Generate 3 distinct high-impact rewrites for a single resume bullet point."""
+    gemini = settings.provider == "gemini"
+    key = (settings.gemini_api_key if gemini else settings.api_key).get_secret_value()
+    key_name = "GEMINI_API_KEY" if gemini else "OPENAI_API_KEY"
+    if not key or key == "replace-with-your-api-key":
+        raise AppError(503, "missing_configuration", f"{key_name} is not configured.")
+    user_payload = {
+        "bullet_point": bullet,
+        "target_role": target_role or "",
+    }
+    try:
+        with OpenAI(
+            api_key=key,
+            base_url=("https://generativelanguage.googleapis.com/v1beta/openai/"
+                      if gemini else "https://api.openai.com/v1/"),
+            timeout=settings.gemini_timeout if gemini else settings.timeout,
+            max_retries=settings.gemini_max_retries if gemini else settings.max_retries,
+        ) as client:
+            if gemini:
+                result = client.chat.completions.create(
+                    model=settings.gemini_model,
+                    messages=[
+                        {"role": "system", "content": BULLET_REWRITE_SYSTEM_PROMPT},
+                        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
+                    ],
+                    response_format=_rewrite_gemini_response_format(),
+                    max_tokens=2500,
+                )
+            else:
+                result = client.chat.completions.parse(
+                    model=settings.model,
+                    messages=[
+                        {"role": "system", "content": BULLET_REWRITE_SYSTEM_PROMPT},
+                        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
+                    ],
+                    response_format=_CustomRewriteRaw,
+                    max_completion_tokens=2500,
+                    store=False,
+                )
+        if not result.choices:
+            raise ValueError("No choices")
+        choice = result.choices[0]
+        if choice.finish_reason not in ("stop", "end_turn"):
+            raise LengthFinishReasonError(completion=result, response=None)
+        if gemini:
+            if not choice.message.content:
+                raise ValueError("Empty bullet rewrites")
+            raw = _CustomRewriteRaw.model_validate_json(choice.message.content)
+        else:
+            if choice.message.parsed is None:
+                raise ValueError("Empty bullet rewrites")
+            raw = _CustomRewriteRaw.model_validate(choice.message.parsed.model_dump(warnings=False))
+        return CustomRewriteResponse(
+            original=bullet,
+            options=[
+                RewriteOption(style=opt.style, text=opt.text, explanation=opt.explanation)
+                for opt in raw.options
+            ],
+        )
+    except Exception as exc:
+        _handle_provider_errors(exc)
+
