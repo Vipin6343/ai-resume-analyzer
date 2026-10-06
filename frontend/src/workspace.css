@@ -2,11 +2,11 @@
 
 /* The four-page workspace shares the existing report components. */
 .reference-app[data-theme='dark'] {
-  --blue: #fb923c;
-  --blue-light: #fdba74;
-  --blue-dark: #ea580c;
-  --border-focus: #fb923c;
-  --grad-brand: linear-gradient(135deg, #fb923c, #ea580c);
+  --blue: #a78bfa;
+  --blue-light: #c4b5fd;
+  --blue-dark: #7c3aed;
+  --border-focus: #a78bfa;
+  --grad-brand: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4);
   --border: #ffffff1a;
   --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
@@ -18,7 +18,7 @@
   color-scheme: dark;
   color: var(--text-primary);
   font-family: 'Space Grotesk', system-ui, sans-serif;
-  background: radial-gradient(ellipse at top left, #f9731624, transparent 28%), radial-gradient(ellipse at bottom right, #38bdf818, transparent 30%), linear-gradient(135deg, #020617, #0f172a 48%, #111827);
+  background: radial-gradient(ellipse at top left, #7c3aed55, transparent 40%), radial-gradient(ellipse at top right, #3b82f640, transparent 40%), radial-gradient(ellipse at bottom left, #06b6d440, transparent 40%), radial-gradient(ellipse at bottom right, #8b5cf640, transparent 40%), linear-gradient(135deg, #1e0a3c 0%, #0f172a 35%, #0c1a3a 60%, #062032 100%);
 }
 .reference-app::before, .reference-app::after { display: none; }
 .reference-app [hidden] { display: none !important; }
@@ -29,22 +29,22 @@
 }
 .reference-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding: 32px; background: radial-gradient(at right top, #f9731614, transparent 50%), #ffffff06; }
 .reference-hero-copy { max-width: 715px; }
-.reference-eyebrow { color: #fed7aa; font-size: 12px; letter-spacing: .2em; margin-bottom: 12px; line-height: 1.7; }
+.reference-eyebrow { color: #c4b5fd; font-size: 12px; letter-spacing: .2em; margin-bottom: 12px; line-height: 1.7; }
 .reference-app .reference-hero h1 { font-family: 'Fraunces', Georgia, serif; color: #fff; background: none; -webkit-text-fill-color: currentColor; font-size: clamp(30px, 3.9vw, 48px); font-weight: 600; letter-spacing: -.04em; line-height: 1.16; margin: 0 0 20px; }
 .reference-hero-copy > p:last-child { max-width: 640px; font-size: 15px; line-height: 1.8; color: #cbd5e1; }
 .reference-hero-actions { display: flex; flex-direction: column; gap: 16px; align-items: flex-end; flex-shrink: 0; }
-.reference-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #fb923c44; border-radius: 100px; background: #f9731622; color: #ffedd5; padding: 12px 18px; font-size: 13px; font-weight: 600; }
-.reference-button:hover { background: #f9731636; }
+.reference-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #a78bfa44; border-radius: 100px; background: #7c3aed22; color: #ede9fe; padding: 12px 18px; font-size: 13px; font-weight: 600; }
+.reference-button:hover { background: #7c3aed36; }
 .reference-button.secondary { color: #e2e8f0; background: #ffffff08; border-color: var(--border); }
-.reference-latest { border: 1px solid #fb923c33; background: #f9731610; border-radius: 16px; padding: 16px 20px; text-align: right; }
-.reference-latest > span { display: block; color: #fed7aa; font-size: 10px; letter-spacing: .14em; }
+.reference-latest { border: 1px solid #a78bfa33; background: #7c3aed10; border-radius: 16px; padding: 16px 20px; text-align: right; }
+.reference-latest > span { display: block; color: #c4b5fd; font-size: 10px; letter-spacing: .14em; }
 .reference-latest strong { font-size: 32px; display: block; margin-top: 5px; }
 .reference-latest small, .reference-snapshot-score small { font-size: 13px; color: #94a3b8; font-weight: 400; }
 .reference-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
 .reference-nav a { display: flex; align-items: center; gap: 12px; padding: 20px; border-radius: 20px; background: #0f172a99; border: 1px solid var(--border); font-size: 14px; color: #cbd5e1; transition: background .15s; }
 .reference-nav a:hover { background: #ffffff0b; }
-.reference-nav a[aria-current='page'] { border-color: #fb923c66; background: #f9731618; color: #ffedd5; }
-.reference-nav a[aria-current='page'] svg { color: #fb923c; }
+.reference-nav a[aria-current='page'] { border-color: #a78bfa66; background: #7c3aed18; color: #ede9fe; }
+.reference-nav a[aria-current='page'] svg { color: #a78bfa; }
 .reference-main { padding: 0; max-width: none; }
 .reference-columns { display: grid; grid-template-columns: 1.05fr 1fr; gap: 24px; align-items: start; }
 .reference-columns > *, .reference-dashboard > * { min-width: 0; }
@@ -56,17 +56,17 @@
 .reference-muted { color: #94a3b8; font-size: 14px; line-height: 1.8; }
 .reference-summary { margin: 24px 0 16px; color: #e2e8f0; }
 .reference-placeholder { display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; gap: 20px; padding: 64px 12px; color: #94a3b8; }
-.reference-placeholder > svg { color: #fdba74; }
+.reference-placeholder > svg { color: #a78bfa; }
 .reference-placeholder h3 { color: #e2e8f0; font-size: 19px; }
 .reference-placeholder p { font-size: 14px; line-height: 1.8; max-width: 290px; }
 .reference-chip { border: 1px solid var(--border); padding: 9px 14px; border-radius: 100px; font-size: 12px; }
 .reference-snapshot-score { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 26px 0; padding-top: 24px; border-top: 1px solid var(--border); }
-.reference-snapshot-score strong { font-size: 30px; color: #fdba74; }
+.reference-snapshot-score strong { font-size: 30px; color: #a78bfa; }
 .reference-steps { padding-left: 23px; margin: 24px 0 0; }
 .reference-steps li { padding-left: 6px; margin-top: 22px; font-size: 14px; line-height: 1.7; }
-.reference-steps li::marker { color: #fb923c; }
+.reference-steps li::marker { color: #a78bfa; }
 .reference-steps p { margin-top: 5px; color: #94a3b8; }
-.reference-status { padding: 30px 0; color: #fdba74; }
+.reference-status { padding: 30px 0; color: #a78bfa; }
 .reference-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 28px; }
 .reference-stats .reference-panel { padding: 23px; }
 .reference-stats p { color: #cbd5e1; font-size: 13px; }
@@ -79,8 +79,8 @@
 .reference-history-open span { flex: 1; overflow-wrap: anywhere; min-width: 0; }
 .reference-history-open small { display: block; color: #94a3b8; font-size: 11px; margin-top: 9px; }
 .reference-delete { color: #fca5a5; background: none; padding: 8px 0; font-size: 11px; margin-top: 8px; }
-.reference-file { color: #fdba74; overflow-wrap: anywhere; font-size: 14px; margin: 24px 0 10px; }
-.reference-text-link { color: #fdba74; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+.reference-file { color: #c4b5fd; overflow-wrap: anywhere; font-size: 14px; margin: 24px 0 10px; }
+.reference-text-link { color: #a78bfa; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
 .jobs-columns .field-label { margin-top: 26px; }
 .reference-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: #02061755; }
 .reference-improvements { max-width: 960px; margin: auto; }
@@ -98,24 +98,24 @@
 .reference-app .input-panel::before, .reference-app .score-card::before { display: none; }
 .reference-app .panel-heading { background: none; }
 .reference-app .panel-heading h2, .reference-app .result-section > h3, .reference-app .results-heading h2 { font-family: 'Fraunces', Georgia, serif; letter-spacing: -.03em; }
-.reference-app .step-number, .reference-app .upload-icon { color: #fdba74; background: #f9731615; box-shadow: none; }
+.reference-app .step-number, .reference-app .upload-icon { color: #c4b5fd; background: #7c3aed15; box-shadow: none; }
 .reference-app .dropzone { background: #02061740; border-color: #64748b66; border-radius: 20px; }
-.reference-app .dropzone:hover, .reference-app .dropzone.dragging { background: #f9731609; border-color: #fb923c; }
-.reference-app .dropzone.has-file .upload-icon { background: #f9731622; color: #fdba74; }
-.reference-app .primary-button { background: #f97316; color: #1c1005; box-shadow: none; border-radius: 100px; }
-.reference-app .primary-button:hover:not(:disabled) { background: #fb923c; }
+.reference-app .dropzone:hover, .reference-app .dropzone.dragging { background: #7c3aed09; border-color: #a78bfa; }
+.reference-app .dropzone.has-file .upload-icon { background: #7c3aed22; color: #c4b5fd; }
+.reference-app .primary-button { background: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4); color: #fff; box-shadow: 0 4px 20px #7c3aed44; border-radius: 100px; }
+.reference-app .primary-button:hover:not(:disabled) { background: linear-gradient(135deg, #8b5cf6, #60a5fa, #22d3ee); box-shadow: 0 6px 28px #7c3aed66; }
 .reference-app .ats-check-button { color: #e2e8f0; background: #ffffff05; border-color: var(--border); border-radius: 100px; }
 .reference-app .input-with-icon, .reference-app textarea { background: #02061740; border-color: var(--border); border-radius: 12px; }
-.reference-app textarea:focus, .reference-input:focus { outline: 2px solid #fb923c80; outline-offset: 2px; }
+.reference-app textarea:focus, .reference-input:focus { outline: 2px solid #a78bfa80; outline-offset: 2px; }
 .reference-app .skills span { border: 1px solid var(--border); background: #ffffff06; color: #cbd5e1; border-radius: 100px; font-size: 12px; }
 .reference-app .history-panel { margin-bottom: 22px; }
-.reference-app .icon-tile { background: #f9731615; color: #fdba74; }
+.reference-app .icon-tile { background: #7c3aed15; color: #a78bfa; }
 .reference-app .scores { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .reference-app .results-heading { flex-wrap: wrap; }
 .reference-app .ai-tools-bar { flex-wrap: wrap; }
 .reference-app .empty-state { border-radius: 24px; background: #0f172a80; }
 .reference-app .result-section, .reference-app .score-card { overflow-wrap: anywhere; }
-.reference-app button:focus-visible, .reference-app a:focus-visible { outline-color: #fdba74; }
+.reference-app button:focus-visible, .reference-app a:focus-visible { outline-color: #a78bfa; }
 @media (max-width: 1000px) {
   .reference-dashboard { grid-template-columns: minmax(0, 1fr); }
   .reference-hero-actions { flex-shrink: 1; }
