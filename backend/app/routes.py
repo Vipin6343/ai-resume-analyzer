@@ -60,9 +60,13 @@ async def ats_check(file: Annotated[UploadFile, File(description="PDF, at most 5
     """Run compatibility checks without sending the resume to an AI provider."""
     try:
         extracted = await extract_pdf(file)
+        return calculate_ats_score(extracted.text, extracted.diagnostics)
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError(500, "ats_check_failed", "ATS check failed due to an unexpected error.") from exc
     finally:
         await file.close()
-    return calculate_ats_score(extracted.text, extracted.diagnostics)
 
 
 @router.post("/api//resumes/analyze", response_model=AnalysisResponse, include_in_schema=False)
